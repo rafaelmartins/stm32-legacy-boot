@@ -33,10 +33,9 @@
  *
  * This function must be called during firmware initialization.
  *
- * @param[in] reset If @c true, reset the system after enabling legacy boot to
- *                  reload registers. The function won't return, as there will be
- *                  an immediate reset. If @c false, the function returns normally.
- * @returns A boolean indicating whether any change was applied to the option bytes
- *          sector.
+ * @param[in] reset Reset the system after enabling legacy boot to reload registers.
+ * @returns A boolean indicating whether any change was applied to the option bytes sector.
+ *
+ * If @c reset is @c true, the function won't return, as there will be an immediate reset.
  */
 bool legacy_boot_enable(bool reset);
