@@ -15,27 +15,33 @@ FetchContent_MakeAvailable(
 
 add_subdirectory(.. legacy-boot)
 
-project(legacy-boot-firmware C ASM)
+include(cmake/git-version-gen.cmake)
 
-add_executable(legacy-boot-firmware
+project(stm32-legacy-boot-firmware
+    VERSION "${PACKAGE_VERSION_CANONICAL}"
+    HOMEPAGE_URL "https://rafaelmartins.com/p/stm32-legacy-boot/"
+    LANGUAGES C ASM
+)
+
+add_executable(stm32-legacy-boot-firmware
     main.c
 )
 
-target_link_libraries(legacy-boot-firmware PRIVATE
+target_link_libraries(stm32-legacy-boot-firmware PRIVATE
     stm32-legacy-boot
 )
 
-target_compile_options(legacy-boot-firmware PRIVATE
+target_compile_options(stm32-legacy-boot-firmware PRIVATE
     -Wall
     -Wextra
     -Werror
 )
 
-set_property(TARGET legacy-boot-firmware
+set_property(TARGET stm32-legacy-boot-firmware
     PROPERTY INTERPROCEDURAL_OPTIMIZATION TRUE
 )
 
-cmsis_stm32_target(legacy-boot-firmware
+cmsis_stm32_target(stm32-legacy-boot-firmware
     DEVICE STM32C071xx
     VERSION 20251118033700
     LINKER_SCRIPT ${CMAKE_CURRENT_SOURCE_DIR}/STM32C071K8TX_FLASH.ld
@@ -44,3 +50,40 @@ cmsis_stm32_target(legacy-boot-firmware
     STLINK ON
     INSTALL ON
 )
+
+configure_file(
+    cmake/cpack/files/README.txt.in
+    cmake/cpack/files/README.txt
+    @ONLY
+)
+
+install(FILES
+    cmake/cpack/files/LICENSE.txt
+    "${CMAKE_BINARY_DIR}/cmake/cpack/files/README.txt"
+    DESTINATION .
+)
+
+set(CPACK_VERBATIM_VARIABLES YES)
+
+set(CPACK_GENERATOR TXZ ZIP)
+set(CPACK_PACKAGE_VENDOR "Rafael G. Martins")
+set(CPACK_PACKAGE_VERSION "${PACKAGE_VERSION_GIT}")
+set(CPACK_PACKAGE_FILE_NAME "${CMAKE_PROJECT_NAME}-${PACKAGE_VERSION_GIT}")
+set(CPACK_PACKAGE_CHECKSUM SHA512)
+
+set(CPACK_SOURCE_GENERATOR TXZ ZIP)
+set(CPACK_SOURCE_PACKAGE_FILE_NAME "${CMAKE_PROJECT_NAME}-source-${PACKAGE_VERSION_GIT}")
+set(CPACK_SOURCE_IGNORE_FILES
+    \\.git
+    \\.gitignore
+    \\.github/
+    "build.*/"
+    "/.*-backups/"
+    "/gerber/"
+    "-cache$"
+    "-cache.lib$"
+    "\\.(000|bak|bck|kicad_pcb-bak|lck|tmp|dsn|ses|kicad_sch-bak|kicad_prl)$"
+    ".*~$"
+)
+
+include(CPack)
